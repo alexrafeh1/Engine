@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\examples",
+    "\\include",
+    "\\include\\Motor",
+    "\\include\\Motor\\common",
+    "\\src",
+    "\\src\\common"
+  ],
+  "SelectedNode": "\\deps",
+  "PreviewInSolutionExplorer": false
+}

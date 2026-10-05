@@ -1,0 +1,83 @@
+{
+    "entities": [
+        {
+            "CameraComponent": {
+                "Aspect": 1.0,
+                "FarPLane": 1000.0,
+                "Fov": 90.0,
+                "Nearplane": 0.10000000149011612
+            },
+            "TransformComponent": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 0
+        },
+        {
+            "LightComponent": "",
+            "TransformComponent": {
+                "position": [
+                    0.0,
+                    0.0,
+                    -10.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 1
+        },
+        {
+            "MaterialComponent": {
+                "Color": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "Roughness": 0.0
+            },
+            "MeshComponent": {
+                "Model": "../data/assets/cube.obj"
+            },
+            "TransformComponent": {
+                "position": [
+                    0.0,
+                    0.0,
+                    -10.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "id": 2
+        }
+    ]
+}
