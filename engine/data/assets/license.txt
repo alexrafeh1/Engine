@@ -1,0 +1,11 @@
+Model Information:
+* title:	2014 Caterham CT05
+* source:	https://sketchfab.com/3d-models/2014-caterham-ct05-33c77afbb49149108e8be86f67f7db76
+* author:	Dave Love SketchFab (https://sketchfab.com/Tyler_Dave)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "2014 Caterham CT05" (https://sketchfab.com/3d-models/2014-caterham-ct05-33c77afbb49149108e8be86f67f7db76) by Dave Love SketchFab (https://sketchfab.com/Tyler_Dave) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -8,6 +8,17 @@
 #include <vector>
 #include "Motor/common/dev/texture.h"
 
+
+
+struct MaterialTextures
+{
+	std::optional<Texture> albedo;
+	std::optional<Texture> normal;
+	std::optional<Texture> roughness;
+	std::optional<Texture> metallic;
+	std::optional<Texture> ao;
+};
+
 struct Vertex
 {
 	glm::vec3 position;
@@ -26,13 +37,11 @@ struct Vertex
 using VertexList = std::vector<Vertex>;
 using IndexList = std::vector<uint32_t>;
 
-
 struct MeshSource
 {
 	VertexList vertices;
 	IndexList indices;
-
-	uint32_t textureIndex = 0;
+	MaterialTextures textures;
 };
 
 class MeshData {
@@ -46,16 +55,7 @@ public:
 	MeshData(MeshData&& other)noexcept;
 	MeshData& operator=(MeshData&& other)noexcept;
 
-	void ReplaceWith(MeshData&& other){
-		*this = std::move(other);
-	}
-
-	void SetEmpty()
-	{
-		vertex_count_ = 0;
-	}
-
-	static std::optional<MeshData> CreateMesh(const MeshSource& source);
+	static std::optional<MeshData> CreateMesh(MeshSource& source);
 	void CreateVAO();
 
 	unsigned int& GetVao() {
@@ -66,20 +66,18 @@ public:
 		glBindVertexArray(VAO_);
 	}
 
-
-
 	GLsizei GetCount() {
 		return vertex_count_;
 	}
 
-	uint32_t GetTextureIndex() {
-		return texture_index_;
+	MaterialTextures& GetTextures() {
+		return textures_;
 	}
 
 	std::unique_ptr<Buffer> buffer_;
 	unsigned int VAO_;
 	GLsizei vertex_count_;
-	uint32_t texture_index_;
+	MaterialTextures textures_;
 private:
 };
 

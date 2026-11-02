@@ -49,10 +49,8 @@ void MeshComponent::Serialize(nlohmann::json& json) {
 }
 
 void MeshComponent::Deserialize(const nlohmann::json& json, struct DeserializeContext& context) {
-    const auto& data =
-        json["MeshComponent"];
-
+    const auto& data = json["MeshComponent"];
     const std::string path = data["Model"];
 
-   // loading_future_ = context.meshManager.LoadAsync("../data/assets/boat/source/ship.obj");
+    loading_future_ = context.meshManager.LoadAsync("../data/assets/scene.gltf");
 }

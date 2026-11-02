@@ -6,6 +6,8 @@
 #include <optional>
 
 
+struct aiTexture;
+
 class Texture {
 
 public:
@@ -19,6 +21,7 @@ public:
 	Texture& operator=(Texture&& other)noexcept;
 
 	static std::optional<Texture> LoadTexture(std::string_view path);
+	static std::optional<Texture> LoadEmbeddedTexture(const aiTexture* embedded);
 
 
 	const unsigned int& GetID() const {

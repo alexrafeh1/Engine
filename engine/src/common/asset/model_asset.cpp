@@ -7,17 +7,9 @@ void ModelAsset::AddMesh(std::shared_ptr<MeshData> mesh)
 	meshes_.push_back(std::move(mesh));
 }
 
-void ModelAsset::AddTexture(Texture tex)
-{
-	textures_.push_back(std::move(tex));
-}
-
 const std::vector<std::shared_ptr<MeshData>>& ModelAsset::GetMeshes() const
 {
 	return meshes_;
 }
 
-const std::vector<Texture>& ModelAsset::GetTextures() const
-{
-	return textures_;
-}
+

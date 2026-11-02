@@ -19,6 +19,8 @@ void ForwardRendering::Render(RenderContex& render)
     RenderGeometry(render);
 }
 
+
+
 void ForwardRendering::UploadLights(RenderContex& render)
 {
     std::vector<GPULight> lights;
@@ -117,34 +119,6 @@ void ForwardRendering::RenderGeometry(RenderContex& render)
         lights_program_->SetUniform("uPlanetRadius", 400.0f);
 
 
-        const auto& textures = mesh->GetTextures();
-
-        for (const auto& meshData : mesh->GetMeshes()){
-            uint32_t textureIndex = meshData->GetTextureIndex();
-
-            if (textureIndex >= textures.size()) {
-
-            }
-            else {
-
-                const Texture& texture = textures[textureIndex];
-                texture.Bind(0);
-                lights_program_->SetUniform("uTexture", 0);
-            }
-                
-
-            glDisable(GL_CULL_FACE);
-            glBindVertexArray(meshData->GetVao());
-
-            glDrawArrays(
-                GL_TRIANGLES,
-                0,
-                static_cast<GLsizei>(meshData->GetCount())
-            );
-
-            glBindVertexArray(0);
-
-        }
     }
 
     }

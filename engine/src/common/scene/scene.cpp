@@ -1,6 +1,8 @@
 #include "Motor/common/scene/scene.h"
 #include "Motor/common/renderer/forward_renderer.h"
 #include "Motor/common/renderer/shadow_renderer.h"
+#include "Motor/common/renderer/deferred_renderer.h"
+
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <GLFW/glfw3.h>
@@ -9,13 +11,13 @@
 
 
 Scene::Scene(GLFWwindow* window)
-	: job_system_(std::thread::hardware_concurrency() - 1, window), mesh_manager_(job_system_), pl_sdf({0,0,0}, 400.0f), vc(pl_sdf), chunk_manager(vc, job_system_)
-{
+	: job_system_(std::thread::hardware_concurrency() - 1, window), mesh_manager_(job_system_){
 }
 
 void Scene::Start() {
-	program_manager_.loadProgram("basic", "../data/shaders/basic_vertex.vs", "../data/shaders/basic_fragment.fs");
-	program_manager_.loadProgram("shadows", "../data/shaders/shadow_vertex.vs", "../data/shaders/shadow_fragment.fs");
+
+	program_manager_.loadProgram("P_Buffer", "../data/shaders/g_buffer_vertex.vs", "../data/shaders/g_buffer_fragment.fs");
+	program_manager_.loadProgram("P_Light", "../data/shaders/deffered_light_vertex.vs", "../data/shaders/deffered_light_fragment.fs");
 
 	ecs_.AddComponentType<TransformComponent>("TransformComponent");
 	ecs_.AddComponentType<MaterialComponent>("MaterialComponent");
@@ -24,26 +26,10 @@ void Scene::Start() {
 	ecs_.AddComponentType<ScriptingComponent>("ScriptingComponent");
 	ecs_.AddComponentType<CameraComponent>("CameraComponent");
 
-	render_.Add(std::make_unique<ShadowRenderer>(program_manager_.Get("shadows")));
-	render_.Add(std::make_unique<ForwardRendering>(program_manager_.Get("basic")));
+	render_.Add(std::make_unique<DefferedRendering>(program_manager_.Get("P_Buffer"), program_manager_.Get("P_Light")));
+
 
 	printf("Scene loaded: %d\n", static_cast<int>(scene_serializer_.Load(ecs_, "../data/saves/test.json", mesh_manager_)));
-
-
-	chunk_manager.GenerateChunks({ 0, 0, 0 });
-	
-
-
-	size_t planet = ecs_.AddEntity();
-
-	ecs_.AddComponent<TransformComponent>(planet)
-		->GetPosition() = { 0,0,-550.0f};
-
-	ecs_.AddComponent<MaterialComponent>(planet);
-
-	ecs_.AddComponent<MeshComponent>(planet)
-		->SetModel(chunk_manager.GetAsset());
-	
 }
 
 
@@ -81,25 +67,6 @@ void Scene::Update(float dt) {
 	if (Input::IsKeyDown(Key::E)) {
 		camera.MoveVertical(-10.0f * dt);
 	}
-
-	static float pos = 400.0f;
-	if (Input::IsKeyPressed(Key::Space)) {
-		// Excavación en la superficie del planeta
-		glm::vec3 excavationCenter(0.0f, 0.0f, pos);
-		float excavationRadius = 10.0f;
-
-		pl_sdf.CarveSphere(excavationCenter, excavationRadius);
-		chunk_manager.GetAffectedChunks(
-			excavationCenter,
-			excavationRadius
-		);
-
-		pos -= 10;
-		printf("sd");
-	}
-
-	chunk_manager.Update(camera.position, { 0,0,-550 });
-
 }
 
 

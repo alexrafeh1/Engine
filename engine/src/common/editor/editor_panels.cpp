@@ -102,6 +102,8 @@ void ComponentsPanel::DrawPanel(EditorContext& editor_ctx)
             MaterialData& data = material->GetMaterial();
             ImGui::ColorEdit4("Color", &data.GetColor().x);
             ImGui::DragFloat("Roughness", &data.GetRoughness(), 0.01f, 0.0f, 1.0f);
+            ImGui::DragFloat("Metallic", &data.GetMetallic(), 0.01f, 0.0f, 1.0f);
+            ImGui::DragFloat("AO", &data.GetAO(), 0.01f, 0.0f, 1.0f);
         }
     }
     if (ecs.HasComponent<CameraComponent>(entity))

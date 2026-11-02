@@ -25,7 +25,7 @@ int main() {
 	editor.Init(window.GetWindow());
 	Framebuffer framebuffer;
 
-	printf("%d",framebuffer.Create(1024, 1024, FramebufferTextureType::Color));
+	printf("%d",framebuffer.Create(1024, 1024, FramebufferTextureType::ViewPort));
 
 	while (!window.isClosed())
 	{

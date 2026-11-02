@@ -26,10 +26,6 @@ public:
 		return model_->GetMeshes();
 	}
 
-	const std::vector<Texture>& GetTextures() {
-		return model_->GetTextures();
-	}
-
 	bool HasModel() {
 		if (!model_)return false;
 

@@ -115,7 +115,7 @@ void ShadowRenderer::CreateShadowMap()
     shadowMap.framebuffer.Create(
         SHADOW_WIDTH,
         SHADOW_HEIGHT,
-        FramebufferTextureType::Depth
+        FramebufferTextureType::Shadows
     );
 
     if (!shadowMap.framebuffer.IsComplete())

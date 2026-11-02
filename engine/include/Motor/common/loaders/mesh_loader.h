@@ -11,11 +11,10 @@ struct aiNode;
 struct aiScene;
 struct aiMesh;
 
+
 struct ModelSource
 {
 	std::vector<MeshSource> meshes;
-	std::vector<Texture> textures;
-
 	std::string path;
 };
 
@@ -26,11 +25,9 @@ public:
 
     static ModelSource LoadMesh(const std::string& path);
 	
-	static void LoadTextures(const struct aiScene* scene, ModelSource& meshes, const std::string& path);
 private:
-	static void ProcessNode(struct aiNode* node, const struct aiScene* scene, std::vector<MeshSource>& meshes);
-
-	static MeshSource ProcessMesh(struct aiMesh* mesh);
+	static void ProcessNode(struct aiNode* node, const struct aiScene* scene, std::vector<MeshSource>& meshes, const std::string& path);
+	static MeshSource ProcessMesh(struct aiMesh* mesh, const aiScene* scene, const std::string& path);
 };
 
 #endif // !__MESH_LOADER_H__ 

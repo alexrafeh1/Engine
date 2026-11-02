@@ -19,13 +19,11 @@ std::shared_future<std::shared_ptr<ModelAsset>> MeshManager::LoadAsync(const std
         return promise.get_future().share();
     }
 
-    // Ya se está cargando.
     if (auto it = loading_.find(path); it != loading_.end())
     {
         return it->second;
     }
 
-    // Carga CPU + recursos GPU desde el worker.
     auto future = job_system_.Submit(
         [path]()
         {
@@ -38,26 +36,16 @@ std::shared_future<std::shared_ptr<ModelAsset>> MeshManager::LoadAsync(const std
 
             model->SetPath(source.path);
 
-            for (const MeshSource& meshSource : source.meshes)
+            for (MeshSource& meshSource : source.meshes)
             {
                 auto mesh = MeshData::CreateMesh(meshSource);
 
                 if (!mesh)
                     continue;
 
-                auto meshPtr =
-                    std::make_shared<MeshData>(
-                        std::move(*mesh)
-                    );
+                auto meshPtr = std::make_shared<MeshData>(std::move(*mesh));
 
                 model->AddMesh(meshPtr);
-            }
-
-            for (auto& texture : source.textures)
-            {
-                model->AddTexture(
-                    std::move(texture)
-                );
             }
 
             return model;

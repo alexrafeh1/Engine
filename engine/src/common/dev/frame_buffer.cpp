@@ -56,81 +56,41 @@ bool Framebuffer::Create(int width, int height, FramebufferTextureType type)
 
     glCreateFramebuffers(1, &framebuffer_ );
 
-   
-
     return CreateTextures() && IsComplete();
 }
 bool Framebuffer::CreateTextures()
 {
-    if (type_ == FramebufferTextureType::Color)
+    if (type_ == FramebufferTextureType::ViewPort)
     {
         glCreateTextures(GL_TEXTURE_2D, 1, &color_texture_);
-        glTextureStorage2D(
-            color_texture_, 1, GL_RGBA8, width_, height_);
+        glTextureStorage2D(color_texture_, 1, GL_RGBA8, width_, height_);
 
-        glTextureParameteri(
-            color_texture_, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTextureParameteri(
-            color_texture_, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTextureParameteri(color_texture_, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTextureParameteri(color_texture_, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glNamedFramebufferTexture(
-            framebuffer_, GL_COLOR_ATTACHMENT0, color_texture_, 0);
+        glNamedFramebufferTexture(framebuffer_, GL_COLOR_ATTACHMENT0, color_texture_, 0);
 
         glCreateTextures(GL_TEXTURE_2D, 1, &depth_texture_);
-        glTextureStorage2D(
-            depth_texture_, 1, GL_DEPTH_COMPONENT24, width_, height_);
+        glTextureStorage2D(depth_texture_, 1, GL_DEPTH_COMPONENT24, width_, height_);
 
-        glTextureParameteri(
-            depth_texture_, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTextureParameteri(
-            depth_texture_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTextureParameteri(depth_texture_, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTextureParameteri(depth_texture_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-        glNamedFramebufferTexture(
-            framebuffer_, GL_DEPTH_ATTACHMENT, depth_texture_, 0);
+        glNamedFramebufferTexture(framebuffer_, GL_DEPTH_ATTACHMENT, depth_texture_, 0);
 
         GLenum draw_buffer = GL_COLOR_ATTACHMENT0;
         glNamedFramebufferDrawBuffers(framebuffer_, 1, &draw_buffer);
     }
 
-    if (type_ == FramebufferTextureType::Depth)
+    if (type_ == FramebufferTextureType::Shadows)
     {
-        glCreateTextures(
-            GL_TEXTURE_2D,
-            1,
-            &depth_texture_
-        );
+        glCreateTextures( GL_TEXTURE_2D, 1, &depth_texture_ );
 
-        glTextureStorage2D(
-            depth_texture_,
-            1,
-            GL_DEPTH_COMPONENT32F,
-            width_,
-            height_
-        );
-
-        glTextureParameteri(
-            depth_texture_,
-            GL_TEXTURE_MIN_FILTER,
-            GL_NEAREST
-        );
-
-        glTextureParameteri(
-            depth_texture_,
-            GL_TEXTURE_MAG_FILTER,
-            GL_NEAREST
-        );
-
-        glTextureParameteri(
-            depth_texture_,
-            GL_TEXTURE_WRAP_S,
-            GL_CLAMP_TO_BORDER
-        );
-
-        glTextureParameteri(
-            depth_texture_,
-            GL_TEXTURE_WRAP_T,
-            GL_CLAMP_TO_BORDER
-        );
+        glTextureStorage2D(depth_texture_, 1, GL_DEPTH_COMPONENT32F, width_, height_ );
+        glTextureParameteri(depth_texture_, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+        glTextureParameteri(depth_texture_,GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+        glTextureParameteri(depth_texture_, GL_TEXTURE_WRAP_S,GL_CLAMP_TO_BORDER);
+        glTextureParameteri(depth_texture_, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
         constexpr float borderColor[] =
         {
@@ -140,28 +100,55 @@ bool Framebuffer::CreateTextures()
             1.0f
         };
 
-        glTextureParameterfv(
-            depth_texture_,
-            GL_TEXTURE_BORDER_COLOR,
-            borderColor
-        );
+        glTextureParameterfv(depth_texture_, GL_TEXTURE_BORDER_COLOR, borderColor );
+        glNamedFramebufferTexture(framebuffer_, GL_DEPTH_ATTACHMENT, depth_texture_, 0 );
+        glNamedFramebufferDrawBuffer(framebuffer_, GL_NONE );
+        glNamedFramebufferReadBuffer(framebuffer_, GL_NONE);
+    }
 
-        glNamedFramebufferTexture(
-            framebuffer_,
-            GL_DEPTH_ATTACHMENT,
-            depth_texture_,
-            0
-        );
+    if (type_ == FramebufferTextureType::GBuffer) {
 
-        glNamedFramebufferDrawBuffer(
-            framebuffer_,
-            GL_NONE
-        );
+        glCreateTextures(GL_TEXTURE_2D, 1, &albedo_texture_);
+        glTextureStorage2D(albedo_texture_, 1, GL_RGBA8, width_, height_);
+        glTextureParameteri(albedo_texture_, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTextureParameteri(albedo_texture_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTextureParameteri(albedo_texture_, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(albedo_texture_, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        glNamedFramebufferReadBuffer(
-            framebuffer_,
-            GL_NONE
-        );
+        glCreateTextures(GL_TEXTURE_2D, 1, &normal_roughness_texture_);
+        glTextureStorage2D(normal_roughness_texture_, 1, GL_RGBA16F, width_, height_);
+        glTextureParameteri(normal_roughness_texture_, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTextureParameteri(normal_roughness_texture_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTextureParameteri(normal_roughness_texture_, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(normal_roughness_texture_, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &material_texture_);
+        glTextureStorage2D(material_texture_, 1, GL_RG8, width_, height_);
+        glTextureParameteri(material_texture_, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTextureParameteri(material_texture_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTextureParameteri(material_texture_, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(material_texture_, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &depth_texture_);
+        glTextureStorage2D(depth_texture_, 1, GL_DEPTH_COMPONENT24, width_, height_);
+        glTextureParameteri(depth_texture_, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTextureParameteri(depth_texture_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        glNamedFramebufferTexture(framebuffer_, GL_COLOR_ATTACHMENT0, albedo_texture_, 0);
+        glNamedFramebufferTexture(framebuffer_, GL_COLOR_ATTACHMENT1, normal_roughness_texture_, 0);
+        glNamedFramebufferTexture(framebuffer_, GL_COLOR_ATTACHMENT2, material_texture_, 0);
+        glNamedFramebufferTexture(framebuffer_, GL_DEPTH_ATTACHMENT, depth_texture_, 0);
+
+        constexpr GLenum attachments[] = { GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT1,GL_COLOR_ATTACHMENT2 };
+        glNamedFramebufferDrawBuffers(framebuffer_, 3, attachments);
+    }
+
+    if (type_ == FramebufferTextureType::Lights) {
+        glCreateTextures(GL_TEXTURE_2D, 1, &light_texture_);
+        glTextureStorage2D(light_texture_, 1, GL_RGBA16F, width_, height_);
+        glTextureParameteri(light_texture_, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTextureParameteri(light_texture_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glNamedFramebufferTexture(framebuffer_, GL_COLOR_ATTACHMENT0, light_texture_, 0);
     }
 
     return true;

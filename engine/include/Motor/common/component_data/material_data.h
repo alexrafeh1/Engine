@@ -29,9 +29,20 @@ public:
 		return roughness_;
 	}
 
+	float& GetMetallic() {
+		return metallic_;
+	}
+
+	float& GetAO() {
+		return ao_;
+	}
+
 private:
 	glm::vec4 color_;
 	float roughness_;
+	float metallic_;
+	float ao_;
+
 };
 
 

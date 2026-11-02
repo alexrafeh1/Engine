@@ -7,8 +7,10 @@
 
 enum class FramebufferTextureType
 {
-    Color,
-    Depth
+    ViewPort,
+    Shadows,
+    GBuffer,
+    Lights
 };
 
 class Framebuffer
@@ -39,6 +41,21 @@ public:
         return depth_texture_;
     }
 
+    GLuint GetAlbedoTexture_() const
+    {
+        return albedo_texture_;
+    }
+
+    GLuint GetNormalTexture() const
+    {
+        return normal_roughness_texture_;
+    }
+
+    GLuint GetMaterialTexture() const
+    {
+        return material_texture_;
+    }
+
     GLuint GetHandle() const
     {
         return framebuffer_;
@@ -64,6 +81,10 @@ private:
     GLuint framebuffer_ = 0;
     GLuint color_texture_ = 0;
     GLuint depth_texture_ = 0;
+    GLuint albedo_texture_ = 0;
+    GLuint light_texture_ = 0;
+    GLuint normal_roughness_texture_ = 0;
+    GLuint material_texture_ = 0;
 
     FramebufferTextureType type_;
     int width_ = 0;

@@ -23,6 +23,18 @@ public:
 		return material_.GetColor();
 	}
 
+	const float& GetRoughness() {
+		return material_.GetRoughness();
+	}
+
+	const float& GetMetallic() {
+		return material_.GetMetallic();
+	}
+
+	const float& GetAO() {
+		return material_.GetAO();
+	}
+
 	void Serialize(nlohmann::json& json);
 	void Deserialize(const nlohmann::json& json, struct DeserializeContext& context);
 

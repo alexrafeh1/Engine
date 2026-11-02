@@ -14,11 +14,7 @@
 #include "Motor/common/components/scripting_component.h"
 #include "Motor/common/components/light_component.h"
 #include "Motor/common/dev/job_system.h"
-#include "Motor/common/planet/generate_voxel.h"
-#include "Motor/common/planet/voxel_conditioner.h"
 #include "Motor/common/input/input.h"
-#include "Motor/common/planet/chunks.h"
-#include "Motor/common/planet/chunk_manager.h"
 #include "Motor/common/dev/camera.h"
 
 class Scene
@@ -50,10 +46,6 @@ private:
     SceneSerializer scene_serializer_;
     JobSystem job_system_;
     Camera camera;
-    ChunkManager chunk_manager;
-    PlanetSDF pl_sdf;
-    VoxelConditioner vc;
-
 };
 
 #endif // !__SCENE_H__

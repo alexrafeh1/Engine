@@ -10,13 +10,6 @@
 ModelSource MeshLoader::LoadMesh(const std::string& path)
 {
     ModelSource meshes;
-
-    printf("LoadMesh context: %p\n",
-        glfwGetCurrentContext());
-
-    printf("LoadMesh GL: %s\n",
-        glGetString(GL_VERSION));
-
     meshes.path = path;
 
     Assimp::Importer importer;
@@ -32,92 +25,31 @@ ModelSource MeshLoader::LoadMesh(const std::string& path)
         scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
         !scene->mRootNode)
     {
-        std::cerr
-            << "Assimp error: "
-            << importer.GetErrorString()
-            << '\n';
-
         return {};
     }
 
-    LoadTextures(scene,meshes,path);
-
-    ProcessNode(
-        scene->mRootNode,
-        scene,
-        meshes.meshes
-    );
+    ProcessNode(scene->mRootNode,scene,meshes.meshes,path);
 
     return meshes;
 }
-void MeshLoader::LoadTextures(
-    const aiScene* scene,
-    ModelSource& model,
-    const std::string& path)
-{
-    model.textures.resize(scene->mNumMaterials);
-
-    std::filesystem::path modelPath(path); 
-    std::filesystem::path modelDirectory = modelPath.parent_path();
-
-    for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
-    {
-        aiMaterial* material = scene->mMaterials[i];
-
-        aiString texturePath;
-
-        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS)
-        {
-            std::filesystem::path textureFile = modelDirectory / texturePath.C_Str();
-
-            textureFile = textureFile.lexically_normal();
-
-            std::cout
-                << "Texture: "
-                << textureFile.string()
-                << '\n';
 
 
-
-            auto tex = Texture::LoadTexture(
-                textureFile.string()
-            );
-
-            if (tex)
-            {
-                model.textures[i] = std::move(tex.value());
-            }
-        }
-    }
-}
-
-
-
-void MeshLoader::ProcessNode(aiNode* node, const aiScene* scene, std::vector<MeshSource>& meshes)
+void MeshLoader::ProcessNode(aiNode* node, const aiScene* scene, std::vector<MeshSource>& meshes, const std::string& path)
 {
     for (unsigned int i = 0; i < node->mNumMeshes; ++i)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(
-            ProcessMesh(mesh)
-        );
+        meshes.push_back(ProcessMesh(mesh,scene,path));
     }
 
     for (unsigned int i = 0; i < node->mNumChildren; ++i)
     {
-        ProcessNode(
-            node->mChildren[i],
-            scene,
-            meshes
-        );
+        ProcessNode(node->mChildren[i], scene, meshes,path);
     }
 }
 
-MeshSource MeshLoader::ProcessMesh(struct aiMesh* mesh) {
+MeshSource MeshLoader::ProcessMesh(struct aiMesh* mesh, const aiScene* scene, const std::string& path) {
     MeshSource result;
-
-
-    result.textureIndex = mesh->mMaterialIndex;
 
     result.vertices.reserve(mesh->mNumVertices);
 
@@ -163,11 +95,59 @@ MeshSource MeshLoader::ProcessMesh(struct aiMesh* mesh) {
 
         for (unsigned int j = 0; j < face.mNumIndices; ++j)
         {
-            result.indices.push_back(
-                face.mIndices[j]
-            );
+            result.indices.push_back( face.mIndices[j] );
         }
     }
 
-    return result;
+   aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
+   aiString texturePath;
+
+   std::filesystem::path modelDirectory = std::filesystem::path(path).parent_path();
+
+   auto texture_fun = [&](aiTextureType type) -> std::optional<Texture> {
+       aiString texturePath;
+
+       if (mat->GetTexture(type, 0, &texturePath) != AI_SUCCESS)
+           return std::nullopt;
+
+       std::string filename = texturePath.C_Str();
+
+       if (!filename.empty() && filename[0] == '*') {
+           const aiTexture* embedded =
+               scene->GetEmbeddedTexture(filename.c_str());
+
+           return Texture::LoadEmbeddedTexture(embedded);
+       }
+
+       std::filesystem::path textureFile(filename);
+
+       if (!textureFile.is_absolute())
+           textureFile = modelDirectory / textureFile;
+
+       textureFile = std::filesystem::absolute(textureFile).lexically_normal();
+
+       if (!std::filesystem::exists(textureFile)) {
+           std::cerr << "Texture not found: "
+               << textureFile.string() << '\n';
+           return std::nullopt;
+       }
+
+       return Texture::LoadTexture(textureFile.string());
+       };
+
+   auto albedo = texture_fun(aiTextureType_BASE_COLOR);
+
+   if (albedo) {
+      result.textures.albedo = std::move(albedo);
+   }
+   else {
+       result.textures.albedo = texture_fun(aiTextureType_DIFFUSE);
+   }
+
+   result.textures.normal = texture_fun(aiTextureType_NORMALS);
+   result.textures.roughness = texture_fun(aiTextureType_DIFFUSE_ROUGHNESS);
+   result.textures.metallic = texture_fun(aiTextureType_METALNESS);
+   result.textures.ao = texture_fun(aiTextureType_AMBIENT_OCCLUSION);
+
+   return result;
 }
