@@ -17,7 +17,6 @@ private:
 	void UploadLights(RenderContex& render);
 	void RenderGeometry(RenderContex& render);
 
-	LightBuffer lightBuffer_;
 	std::shared_ptr<Program> lights_program_;
 };
 

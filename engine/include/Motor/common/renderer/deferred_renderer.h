@@ -9,7 +9,7 @@
 class DefferedRendering : public RenderInterface {
 public:
 
-	DefferedRendering(std::shared_ptr<Program> buffer_program, std::shared_ptr<Program> light_program);
+	DefferedRendering(std::shared_ptr<Program> buffer_program, std::shared_ptr<Program> light_program, std::shared_ptr<Program> SSR_program);
 	virtual void Render(RenderContex& render) override;
 
 private:
@@ -17,11 +17,15 @@ private:
 	void RenderLights(RenderContex& render);
 	void SetLightUniforms(LightComponent* light);
 
-	std::unique_ptr<Framebuffer> G_Buffer;
-	std::unique_ptr<Framebuffer> Light_Buffer;
+	void RenderSSR(RenderContex& render);
 
-	std::shared_ptr<Program> G_Buffer_Program;
-	std::shared_ptr<Program> Light_Program;
+	std::unique_ptr<Framebuffer> G_Buffer_;
+	std::unique_ptr<Framebuffer> Light_Buffer_;
+
+	std::shared_ptr<Program> G_Buffer_Program_;
+	std::shared_ptr<Program> Light_Program_;
+	std::shared_ptr<Program> SSR_Program_;
+
 
 	GLuint VAO, VBO, EBO;
 };

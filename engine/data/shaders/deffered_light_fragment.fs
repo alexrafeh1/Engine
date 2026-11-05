@@ -12,10 +12,14 @@ uniform int uFirstPass;
 in vec2 UV;
 
 //lights
+uniform int light_type;
 uniform vec3 light_dirr;
 uniform vec3 light_pos;
 uniform vec3 light_color;
-
+uniform float light_intensity;
+uniform float light_radius;
+uniform float light_innerCutoff;
+uniform float light_outerCutoff;
 
 //Cam
 uniform vec3 uCamPos;
@@ -80,11 +84,36 @@ void main(){
     vec4 normalRoughness = texture(gNormal, UV);
     vec3 albedo = texture(gDiffuse, UV).rgb;
     vec3 worldPos = GetWorldPosition(UV, texture(gDepth, UV).r, UInverseProjection, uInverseView);
-    
-    vec3 N = normalize(normalRoughness.rgb);
-    vec3 L = normalize(-light_dirr);
-    float NdotL = max(dot(N, L), 0.0);
     vec3 V = normalize(uCamPos - worldPos);
+    vec3 N = normalize(normalRoughness.rgb);
+
+    vec3 L = normalize(-light_dirr);
+    vec3 radiance = light_color * light_intensity;
+    if(light_type != 0){
+        L = normalize(light_pos - worldPos);
+        float distance = length(light_pos - worldPos);
+        float cutoff = clamp(1.0 - distance / light_radius, 0.0, 1.0);
+        float attenuation = cutoff * cutoff;
+
+        if(light_type == 2){
+            vec3 spotDir = normalize(light_dirr);
+            float theta = dot(normalize(-L), spotDir);
+            float epsilon = light_innerCutoff - light_outerCutoff;
+
+            float spotIntensity = clamp(
+                (theta - light_outerCutoff) / max(epsilon, 0.0001),
+                0.0,
+                1.0
+            );
+
+            attenuation *= spotIntensity;
+        }
+       
+        radiance *= attenuation;
+    }
+  
+
+    float NdotL = max(dot(N, L), 0.0);
     vec3 H = normalize(V + L);
     float roughness = clamp(normalRoughness.a, 0.045, 1.0);
     float metallic = texture(gMaterial, UV).r;
@@ -100,7 +129,7 @@ void main(){
     vec3 specular = numerator / denominator;
 
     vec3 kD = (vec3(1.0) - F) * (1.0 - metallic);
-    vec3 Lo = (kD * albedo / PI + specular) * light_color * NdotL;
+    vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
 
     vec3 color;
     if(uFirstPass == 1){

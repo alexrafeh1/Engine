@@ -132,17 +132,17 @@ void ComponentsPanel::DrawPanel(EditorContext& editor_ctx)
                     current = "None";
                 }
 
-             /*   if (ImGui::BeginCombo("Model", current.c_str())) {
+              if (ImGui::BeginCombo("Model", current.c_str())) {
                     for (const auto& [path, asset] : mesh_manager.GetModels()) {
                         bool selected = current == path;
                         if (!selected) {
                             if (ImGui::Selectable(path.c_str(), selected)) {
-                                mesh->SetModel(mesh_manager.Load(path.c_str()));
+                                mesh->SetFuture(mesh_manager.LoadAsync(path.c_str()));
                             }
                         }
                     }
                     ImGui::EndCombo();
-                }   */ 
+                }   
 
         }
     }
@@ -164,6 +164,30 @@ void ComponentsPanel::DrawPanel(EditorContext& editor_ctx)
            if (ImGui::Button("Reload Script")){
               scripting->SetScript(buffer, editor_ctx.scene.GetECS(), editor_ctx.selected_entity);
            }
+        }
+    }
+
+
+    if (ecs.HasComponent<LightComponent>(entity))
+    {
+        if (ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            LightComponent* light = ecs.GetComponent<LightComponent>(entity);
+            ImGui::ColorEdit4("Color", &light->GetColor().x);
+            ImGui::DragFloat3("Direction", &light->GetDirection().x, 0.01f,-1.0f,1.0f);
+
+
+            LightType& current = light->GetType();
+            std::string name = light->GetTypeName();
+            std::vector<std::string> names = light->GetAllTypeNames();
+;            if (ImGui::BeginCombo("Type", name.c_str())) {
+                 for (int i = 0; i < names.size();i++) {
+                    if (ImGui::Selectable(names[i].c_str())) {
+                        light->SetType(i);
+                    }
+                }
+                ImGui::EndCombo();
+            }
         }
     }
 

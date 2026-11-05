@@ -8,7 +8,8 @@
 #include <GLFW/glfw3.h>
 #include "../deps/glm/glm.hpp"
 
-
+#include <filesystem>
+namespace fs = std::filesystem;
 
 Scene::Scene(GLFWwindow* window)
 	: job_system_(std::thread::hardware_concurrency() - 1, window), mesh_manager_(job_system_){
@@ -18,6 +19,8 @@ void Scene::Start() {
 
 	program_manager_.loadProgram("P_Buffer", "../data/shaders/g_buffer_vertex.vs", "../data/shaders/g_buffer_fragment.fs");
 	program_manager_.loadProgram("P_Light", "../data/shaders/deffered_light_vertex.vs", "../data/shaders/deffered_light_fragment.fs");
+	program_manager_.loadProgram("P_SSR", "../data/shaders/ssr_vertex.vs", "../data/shaders/ssr_fragment.fs");
+
 
 	ecs_.AddComponentType<TransformComponent>("TransformComponent");
 	ecs_.AddComponentType<MaterialComponent>("MaterialComponent");
@@ -26,10 +29,19 @@ void Scene::Start() {
 	ecs_.AddComponentType<ScriptingComponent>("ScriptingComponent");
 	ecs_.AddComponentType<CameraComponent>("CameraComponent");
 
-	render_.Add(std::make_unique<DefferedRendering>(program_manager_.Get("P_Buffer"), program_manager_.Get("P_Light")));
+	render_.Add(std::make_unique<DefferedRendering>(program_manager_.Get("P_Buffer"), program_manager_.Get("P_Light"), program_manager_.Get("P_SSR")));
 
 
-	printf("Scene loaded: %d\n", static_cast<int>(scene_serializer_.Load(ecs_, "../data/saves/test.json", mesh_manager_)));
+	std::string main_directory = "../data/";
+
+	for (const auto& entry : fs::recursive_directory_iterator(main_directory)) {
+		if (entry.is_regular_file() && (entry.path().extension() == ".obj" || entry.path().extension() == ".glb" || entry.path().extension() == ".gltf" || entry.path().extension() == ".fbx")) {
+			std::string obj_path = entry.path().generic_string();
+			mesh_manager_.LoadAsync(obj_path);
+		}
+	}
+
+	scene_serializer_.Load(ecs_, "../data/saves/test.json", mesh_manager_);
 }
 
 
@@ -42,6 +54,10 @@ void Scene::Update(float dt) {
 		if (!*mesh_it)continue;
 		MeshComponent* m = *mesh_it;
 		m->Update();
+	}
+
+	if (Input::IsKeyDown(Key::F4)) {
+		scene_serializer_.Save(ecs_, "../data/saves/test.json");
 	}
 
 	if (Input::IsKeyDown(Key::W)) {

@@ -52,5 +52,5 @@ void MeshComponent::Deserialize(const nlohmann::json& json, struct DeserializeCo
     const auto& data = json["MeshComponent"];
     const std::string path = data["Model"];
 
-    loading_future_ = context.meshManager.LoadAsync("../data/assets/scene.gltf");
+    loading_future_ = context.meshManager.LoadAsync(path);
 }

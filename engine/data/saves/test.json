@@ -58,7 +58,7 @@
                 "Roughness": 0.0
             },
             "MeshComponent": {
-                "Model": "../data/assets/cube.obj"
+                "Model": "../data/assets/scene.gltf"
             },
             "TransformComponent": {
                 "position": [
@@ -78,6 +78,38 @@
                 ]
             },
             "id": 2
+        },
+        {
+            "MaterialComponent": {
+                "Color": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "Roughness": 0.0
+            },
+            "MeshComponent": {
+                "Model": "../data/assets/cube.obj"
+            },
+            "TransformComponent": {
+                "position": [
+                    0.0,
+                    0.0,
+                    -13.399999618530273
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            },
+            "id": 3
         }
     ]
 }

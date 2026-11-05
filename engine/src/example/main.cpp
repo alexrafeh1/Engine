@@ -13,19 +13,16 @@ int main() {
 	Window window = std::move(m.GetWindow());
 	Input::Init(window.GetWindow());
 	Editor editor;
-
-
 	int width;
 	int height;
 
 	Scene scene(window.GetWindow());
 	scene.Start();
 
-
 	editor.Init(window.GetWindow());
 	Framebuffer framebuffer;
 
-	printf("%d",framebuffer.Create(1024, 1024, FramebufferTextureType::ViewPort));
+	framebuffer.Create(1024, 1024, FramebufferTextureType::ViewPort);
 
 	while (!window.isClosed())
 	{
@@ -33,6 +30,7 @@ int main() {
 	
 		float dt = window.GetDtF();
 	
+		//Update Entities
 		scene.Update(dt);
 
 
@@ -43,20 +41,12 @@ int main() {
 		editor.BeginFrame();
 		editor.Update(framebuffer, scene, window);
 
-		if (width > 0 && height > 0)
-		{
-			framebuffer.Bind();
+		//Render Entities
+		framebuffer.Bind();
+		scene.Render();
+		framebuffer.Unbind();
 
-			glViewport(0, 0, width, height);
-			scene.Render();
-
-			framebuffer.Unbind();
-		}
-
-
-
-
-		glDisable(GL_BLEND);
+		//Render Panels
 		editor.Render();
 
 

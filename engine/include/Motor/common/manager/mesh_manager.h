@@ -24,6 +24,10 @@ public:
     bool IsLoaded(const std::string& path) const;
     bool IsLoading(const std::string& path) const;
 
+    std::unordered_map<std::string, std::shared_future<std::shared_ptr<ModelAsset>>> GetModels() {
+        return loading_;
+    }
+
 private:
 
 private:

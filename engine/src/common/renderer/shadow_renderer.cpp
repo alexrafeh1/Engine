@@ -29,7 +29,7 @@ void ShadowRenderer::Render(RenderContex& context)
 
         glm::mat4 lightSpaceMatrix;
 
-        if (light->type == LightType::Directional_Light) {
+        /*if (light->type == LightType::Directional_Light) {
 
             glm::vec3 lightDirection = glm::normalize(light->direction);
             glm::vec3 lightPosition = -lightDirection * 20.0f;
@@ -44,7 +44,7 @@ void ShadowRenderer::Render(RenderContex& context)
 
         if (light->type == LightType::Spot_Light) {
 
-        }
+        }*/
 
         if (shadowIndex >= shadow_maps_.size())
         {

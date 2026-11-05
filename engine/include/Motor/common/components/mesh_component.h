@@ -22,6 +22,10 @@ public:
 		model_ = model;
 	}
 
+	void SetFuture(std::shared_future<std::shared_ptr<ModelAsset>> future) {
+		loading_future_ = future;
+	}
+
 	const std::vector<std::shared_ptr<MeshData>>& GetMeshes() {
 		return model_->GetMeshes();
 	}

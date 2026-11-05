@@ -23,38 +23,7 @@ void ForwardRendering::Render(RenderContex& render)
 
 void ForwardRendering::UploadLights(RenderContex& render)
 {
-    std::vector<GPULight> lights;
-
-    for (size_t entity = 0; entity < render.ecs->GetSize(); ++entity)
-    {
-        auto* light = render.ecs->GetComponent<LightComponent>(entity);
-
-        auto* transform = render.ecs->GetComponent<TransformComponent>(entity);
-
-        if (!light || !transform)
-            continue;
-
-        glm::mat4 world =  transform->GetWorldMatrix(*render.ecs);
-        glm::vec3 position = glm::vec3(world[3]);
-
-        GPULight gpu{};
-
-        gpu.position = glm::vec4(position, light->radius);
-        gpu.color = glm::vec4(light->color,light->intensity);
-        gpu.direction = glm::vec4(glm::normalize(light->direction),  static_cast<float>( static_cast<int>(light->type)  ) );
-
-        gpu.parameters = glm::vec4(
-                light->constant,
-                light->linear,
-                light->quadratic,
-                light->outerCutOff
-            );
-
-        lights.push_back(gpu);
-    }
-
-    lightBuffer_.Upload(lights);
-    lightBuffer_.Bind(0);
+  
 }
 
 void ForwardRendering::RenderGeometry(RenderContex& render)
@@ -113,7 +82,6 @@ void ForwardRendering::RenderGeometry(RenderContex& render)
         lights_program_->SetUniform("uView", render.cam.GetViewMatrix());
         lights_program_->SetUniform("uProjection", render.cam.GetProjectionMatrix(1.0f));
         lights_program_->SetUniform("uCameraPosition", render.cam.position);
-        lights_program_->SetUniform("uLightCount", static_cast<int>(lightBuffer_.GetCount()));
         lights_program_->SetUniform("uColor", material->GetColor());
         lights_program_->SetUniform("uPlanetCenter", glm::vec3(0.0f, 0.0f, -550.0f));
         lights_program_->SetUniform("uPlanetRadius", 400.0f);

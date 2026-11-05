@@ -56,6 +56,12 @@ public:
         return material_texture_;
     }
 
+    GLuint GetLightTexture() const
+    {
+        return light_texture_;
+    }
+
+
     GLuint GetHandle() const
     {
         return framebuffer_;
